@@ -55,12 +55,14 @@ The file can be founded [HERE](https://dxact.blob.core.chinacloudapi.cn/21mfilms
 
 ## 4. using insert into clause to import data.
 
-TDEngine cannot su[]
+TDEngine does not support import data directly into super table. It only support import data into physical table. It means that all Nasdaq stock data has to be seperated into thoundands of files by code name. CSV file will be imported by each SQL statements.
 
 ```shell
 insert into tb_nasdaq file '[code].csv'
 ```
 The data file can be found at [HERE](https://dxact.blob.core.chinacloudapi.cn/21mfilms/tdengine_data.zip).
+
+The zip file also contains import_tdendine_data.txt for insert command batch execution.
 
 Notice:
 ***
