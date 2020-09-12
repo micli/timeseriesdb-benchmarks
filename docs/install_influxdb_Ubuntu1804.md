@@ -21,7 +21,9 @@ sudo dpkg -i influxdb_1.8.2_amd64.deb
 3. Ensure influxdb service maintained by systemd.
 
 ```shell
+
 sudo systemctl enable --now influxdb
+
 ```
 
 ## Reference

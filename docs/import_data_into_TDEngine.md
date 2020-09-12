@@ -66,11 +66,9 @@ The zip file also contains import_tdendine_data.txt for insert command batch exe
 
 Notice:
 ***
-```
 The timestamp column 'date' must be at least accurate to the second.
 The code column should be surrounded by double quote.
 The sample data as below:
 '2012-01-03 00:00:00',69.49,71.58,69.04,70.47,52.8236,107000,"LANC"
 '2012-01-04 00:00:00',68.92,69.65,68.59,69.08,52.39031,67100,"LANC"
-```
 ***

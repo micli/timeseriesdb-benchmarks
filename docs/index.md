@@ -12,7 +12,7 @@ For testing these database, we downloaded Nasdaq daily stock trading summary (fr
 
 Besides data, we also considering licensing type, architecture, ecosystem and support for future usage.
 
-### Consolidations
+### Conclusion
 
 By completed whole evaluation, we can get below facts:
 
@@ -29,6 +29,30 @@ Summaraied above information, we recommended **TDEngine** database as the best c
 
 ## Scoping
 
+The testing only focus on these four time series database: DolphinDB, InfluxDB, KDB+, TDEngine. The testing will running on a specific virtual machine environment with same operating system Ubuntu 18.04. 
+
+### Environment
+
+Regarding testing resource, we selected **DSv4** series Virtual Machine. Detail as below:
+
+|Series|vCPU|Memory(GiB)|Temproary Storage(GiB)|Max Disk|IOPS/MBPs)|
+|:-|:-|:-|:-|:-|:-|
+|Standard_D4s_v3|4|16|32|8|8000/64 (100)|
+
+This kind of Vritual Machine has a good balance of Azure quota and pricing. Azure has deployed a large number of this kind of resources.  All VMs will be running on Premium SSD for best disk performance.
+
+Operating System is **Ubuntu 18.04**. 
+
+### Version of Time Series database
+
+|Database|Version|Comments|
+|:-|:-|:-|
+|DolphinDB|1.00.24 64-bit||
+|InfluxDB|1.8.2 64-bit|Production version,although 2.0 is going to beta.|
+|KDB+||To prevent leagal issue, we only use 32-bit version.|
+|TDEngine|2.0.3.0 64-bit|
+
+
 
 ## Data for Testing
 
@@ -36,12 +60,32 @@ The testing data comes from [Yahoo finance](https://finance.yahoo.com/) by Pytho
 
 Data contains below fields:
 
-|Fields|Comments|
+|Fields|Meaning|
 |:-|:-|
 |date|The trading date.|
-|opening price||
-|closing price||
+|opening_price|The price at which a security first trades upon the opening of an exchange on a trading day.|
+|highest_price|Today's high is the highest price at which a stock traded during the course of the trading day.|
+|lowest_price|Today's high is the lowest price at which a stock traded during the course of the trading day.|
+|closing_price|It refers to the last price at which a stock trades during a regular trading day.|
+|adjusted_closing_price|The price that is quoted at the end of the trading day is the price of the last lot of stock that was traded for the day. This is referred to as the stock's closing price.|
+|trade_volume|It is a measure of how much of a given financial asset has traded in a period of time. For stocks, volume is measured in the number of shares traded and, for futures and options, it is based on how many contracts have changed hands.|
 
+One of sample:
+
+```json
+"2012-01-05": {
+    "date": "2012-01-05",
+    "code": "AAPL",
+    "name": "Apple Inc. - Common Stock",
+    "opening_price": 14.929642677307129,
+    "highest_price": 14.948214530944824,
+    "lowest_price": 14.738214492797852,
+    "closing_price": 14.819643020629883,
+    "adjusted_closing_price": 12.90129280090332,
+    "trade_volume": 271269600.0
+}
+```
+Total items are **5205952**. Different databases require different data formats. Data has to be changed into different format to compatiable data importing. 
 
 
 ## Licensing Considerations
@@ -73,12 +117,47 @@ Here is ranking of software license agreement friendliness:
 
 InfluxDB(Can do anything, user can decide open source or not.) > TDEngine(Can do anything, user has to open source.) > DolphinDB & KDB+(Not open source, user has to by license.)
 
-DolphinDB and KDB+ are not allow free version running in business scenarios. KDB+ needs to collect usage data to keep license alive.
+DolphinDB and KDB+ are not allow free version running in business scenarios. KDB+ requries to collect usage data to keep license alive.
 
 
 ## Architecture
 
+Since DolphinDB and KDB+ are not open source software, they does not expose any architecture information. In this section will only discuss InfluxDB and TDengine.
 
+### InfluxDB
+
+![InfluxDB](./images/influxdb-architecture.png)
+
+InfluxDB can be divided into data persistence layer, internal component layer, and external service layer. Let's analyze it from the lowest layer to the upper layer. In terms of storage, Influxdb is divided into two types of storage, one is META storage, and the other is data storage. First, let’s check the directory structure on the disk.
+
+META storage will generate a meta.db file in the data directory, which mainly stores the meta information of Influxdb, such as the name of the created database, the retention policy of the database, and so on. Data storage is mainly divided into two types, one is persistent data and the other is pre-written logs. Students who are familiar with storage systems are not unfamiliar with this synchronous pre-write and asynchronous flashing method. This method can be very good. Solve the problems of distributed data storage synchronization and write reliability. The data in the data and wal directories are stored through TSM Engine. The name of the second-level directory is the name of the database, the name of the third-level directory is the name of the retention policy, the fourth-level directory is the id of the shard, and the next level It is the actual stored data file. In addition, careful students will find that the directory structure of wal is exactly the same as the directory structure of data, including the file name. This is because the smallest logical storage unit entity in the TSM Engine is the Shard, and the Shard will build data and data according to its own configuration. wal, so they have the same directory structure.
+
+The internal component layer is the encapsulation of the underlying components in Influxdb. For example, all scenarios that need to manipulate meta information will reference MetaClient, scenarios that need to write data will reference PointsWritter by default, and scenarios that require data query will reference QueryExecutor, etc. These internal components Will be referenced by the upper Service, so we won't go into details about these internal components.
+
+### TDengine
+
+There are two main modules in TDengine server as shown in Picture 1: Management Module (MGMT) and Data Module(DNODE). The whole TDengine architecture also includes a TDengine Client Module.
+
+![TDEngine Architecture](./images/tdengine-architeture.png)
+
+**MGMT Module**
+
+The MGMT module deals with the storage and querying on metadata, which includes information about users, databases, and tables. Applications will connect to the MGMT module at first when connecting the TDengine server. When creating/dropping databases/tables, The request is sent to the MGMT module at first to create/delete metadata. Then the MGMT module will send requests to the data module to allocate/free resources required. In the case of writing or querying, applications still need to visit the MGMT module to get meta data, according to which, then access the DNODE module.
+
+**DNODE Module**
+
+The DNODE module is responsible for storing and querying data. For the sake of future scaling and high-efficient resource usage, TDengine applies virtualization on resources it uses. TDengine introduces the concept of a virtual node (vnode), which is the unit of storage, resource allocation and data replication (enterprise edition). As is shown in Picture 2, TDengine treats each data node as an aggregation of vnodes.
+
+When a DB is created, the system will allocate a vnode. Each vnode contains multiple tables, but a table belongs to only one vnode. Each DB has one or mode vnodes, but one vnode belongs to only one DB. Each vnode contains all the data in a set of tables. Vnodes have their own cache and directory to store data. Resources between different vnodes are exclusive with each other, no matter cache or file directory. However, resources in the same vnode are shared between all the tables in it. Through virtualization, TDengine can distribute resources reasonably to each vnode and improve resource usage and concurrency. The number of vnodes on a dnode is configurable according to its hardware resources.
+
+**Writing Process**
+
+TDengine uses the Writing Ahead Log strategy to assure data security and integrity. Data received from the client is written to the commit log at first. When TDengine recovers from crashes caused by power loss or other situations, the commit log is used to recover data. After writting to the commit log, data will be wrtten to the corresponding vnode cache, then an acknowledgment is sent to the application. There are two mechanisms that can flush data in cache to disk for persistent storage:
+
+![TDEngine Writing Process](./images/tdengine-write-process.png)
+
+Flush driven by timer: There is a backend timer which flushes data in cache periodically to disks. The period is configurable via parameter commitTime in system configuration file taos.cfg.
+Flush driven by data: Data in the cache is also flushed to disks when the left buffer size is below a threshold. Flush driven by data can reset the timer of flush driven by the timer.
 
 
 ## Performance Considerations
