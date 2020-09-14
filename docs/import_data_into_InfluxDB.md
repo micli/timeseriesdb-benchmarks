@@ -3,6 +3,19 @@
 In this document you will learn how to imoport CSV file into InfluxDB.
 
 
+## Creating Database
+
+Before import data into database, you have to create one first. Now need a database with 3650 retenation policy.
+
+```shell
+> influx
+
+CREATE DATABASE nasdaq WITH DURATION 3650d
+use nasdaq
+
+```
+
+
 ## Install Telegraf
 
 Telegraf is an agent written in Go for collecting metrics and writing them into InfluxDB or other possible outputs. This guide will get you up and running with Telegraf. It walks you through the download, installation, and configuration processes, and it shows how to use Telegraf to get data into InfluxDB. Telegraf can effecificntly import CSV data into InflxDB.

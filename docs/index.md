@@ -6,7 +6,7 @@ By viewing [db-engines.com](https://db-engines.com/en/ranking/time+series+dbms) 
 
 | ![dolphindb](./images/logo-dolphindb.jpg)|![influxdb](./images/logo-influxdb.png)|![kdb+](./images/logo-kdb.jpg)|![TDengine](./images/logo-tdengine.png)|
 |:-:|:-:|:-:|:-:|
-|DolphinDB|InfluxDB|KDB+|TDEngine|
+|[DolphinDB](https://www.dolphindb.com/)|[InfluxDB](https://www.influxdata.com/)|[KDB+](https://www.kx.com/)|[TDEngine](http://www.taosdata.com/en/)|
 
 For testing these database, we downloaded Nasdaq daily stock trading summary (from 2011.01.01~2020.09, 3000+ company) as testing data. We evaluate database by data importing, operationing, query time and others. 
 
@@ -24,8 +24,7 @@ By completed whole evaluation, we can get below facts:
 + Best performance is
 
 
-Summaraied above information, we recommended **TDEngine** database as the best choice.
-
+Summaraied above information, we recommended **** database as the best choice.
 
 ## Scoping
 
@@ -115,12 +114,14 @@ The open source version anncounced [MIT License](https://github.com/influxdata/i
 
 Here is ranking of software license agreement friendliness:
 
-InfluxDB(Can do anything, user can decide open source or not.) > TDEngine(Can do anything, user has to open source.) > DolphinDB & KDB+(Not open source, user has to by license.)
+1. InfluxDB(Can do anything, user can decide open source or not.) 
+2. TDEngine(Can do anything, user has to open source.) 
+3. DolphinDB & KDB+(Commerical software, not open source, user has to by license.)
 
 DolphinDB and KDB+ are not allow free version running in business scenarios. KDB+ requries to collect usage data to keep license alive.
 
 
-## Architecture
+## Architecture Overview
 
 Since DolphinDB and KDB+ are not open source software, they does not expose any architecture information. In this section will only discuss InfluxDB and TDengine.
 
@@ -162,7 +163,27 @@ Flush driven by data: Data in the cache is also flushed to disks when the left b
 
 ## Performance Considerations
 
-Performance Considerations,
+
+### Data Import Performance
+
+In this part of evaluation, we will import all of Nasdaq data into one data table and get data of spent time. Since each data base requires its own data format, the downloaded data has to change format to adapt database. We won't calculate time of data preparation. It only focus on data importing process time.
+
+The result is DolphinDB got the best record that about spent 2.0s to import all of data.
+TDEngine almost spent 20 seconds to complete import. 
+
+The poorest one is InfluxDB with Telegrah, more than 10 hours.
+
+
+For importing details, please view below:
+
++ [Import data into DolphinDB](./import_data_into_DolphinDB.md)
++ [Import data into InfluxDB](./import_data_into_InfluxDB.md)
++ [Import data into KDB+]()
++ [Import data into TDEngine](./import_data_into_TDEngine.md)
+
+### Query Performance
+
+
 
 ## Support and Community Considerations
 

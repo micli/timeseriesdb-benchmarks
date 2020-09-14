@@ -34,7 +34,9 @@ table(capacity:size, colNames, colTypes)
 capacity means initial memory size of this table. If data size more than capacity, table will automatically allocate more memory to maintain data. size means inital data occupied memory.
 
 ```shell
+
 table(20:0, 'date'code'opening_price'highest_price'lowest_price'closing_price'adjusted_closing_price'trade_volume,[TIMESTAMP,STRING,DOUBLE,DOUBLE,DOUBLE,DOUBLE,DOUBLE,DOUBLE])
+
 ```
 
 To build both database and partitioned table, please use below code:
@@ -48,7 +50,7 @@ if(existsDatabase(dbPath)){
 }
 db=database(dbPath,VALUE,yearRange)
 saveDatabase(db);
-tb_nasdaq=table(20:0, 'date''code''opening_price''highest_price''lowest_price''closing_price''adjusted_closing_price''trade_volume',[TIMESTAMP,STRING,DOUBLE,DOUBLE,DOUBLE,DOUBLE,DOUBLE,DOUBLE])
+tb_nasdaq=table(20:0, 'date''code''opening_price''highest_price''lowest_price''closing_price''adjusted_closing_price''trade_volume',[TIMESTAMP,SYMBOL,DOUBLE,DOUBLE,DOUBLE,DOUBLE,DOUBLE,INT])
 pdt=createPartitionedTable(db, tb_nasdaq, 'tb_nasdaq', 'date');
 ```
 
@@ -68,8 +70,10 @@ dbPath="dfs://nasdaqdb"
 login("admin","123456")
 db=database(dbPath)
 tb_nasdaq=loadTable(db,'tb_nasdaq')
-timer tb_nasdaq=ploadText('nasdaq.csv')
-select count(*) from tb_nasdaq;
+timer tb_nasdaq=ploadText('nasdaq_dolphin_data.csv')
+select count(*) from tb_nasdaq
+pdt=loadTable(db,'tb_nasdaq')
+pdt.append!(tb_nasdaq);
 ```
 
 # Experiment Result
