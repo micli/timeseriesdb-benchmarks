@@ -118,6 +118,86 @@ tb_nasdaq,LANC,69.35,69.51,68.55,69.03,52.71719,125700,1326038400
 
   ## Result
 
-  Total time cost:  minutes
+  Total time cost > 10 hours.
 
 Telegraf is not an efficient way to import data. It's offical suggestion.
+
+## importing data by HTTP service
+
+Since Telegraf is too slowly to import, we have to find a other way to import data. In this secion, we will use a InfluxDB client to access REST API by line protocol to import data into InfluxDB.
+
+## Install package
+
+```shell
+
+Install-Package InfluxDB.LineProtocol
+
+```
+In the code, it will search all sub directories that contain Nasdaq trading data for each company. In each sub directory, It will retrieve trading data from .json file. And then, it will build an array of LinePoint objects that will be sent by PayLoad object trough HTTP connection.
+
+InfluxDB will get all of LinePoint objects and write them to database: nasdaq.
+
+```csharp
+
+        static void Main(string[] args)
+        {
+            var path = "/Users/micl/Documents/Nasdaq/us/nasdaq/";
+            var database = "nasdaq";
+           
+            LineProtocolClient client = new LineProtocolClient(new Uri("http://{server}:8086"), database);
+           
+            string[] subdirectiores = System.IO.Directory.GetDirectories(path);
+            int subFolderCount = subdirectiores.Length;
+            Console.WriteLine("Total found {0} sub folders", subFolderCount);
+            int currentFolder = 1;
+            DateTime start = DateTime.Now;
+            foreach (string folder in subdirectiores)
+            {
+                Console.WriteLine("Now handling {0} / {1} folder, Symbol =  {2}",
+                    currentFolder, subFolderCount, folder.Substring(folder.LastIndexOf("/") + 1, folder.Length - folder.LastIndexOf("/") - 1));
+                string[] files = Directory.GetFiles(folder, "*.json");
+                foreach (string f in files)
+                {
+                    Console.WriteLine("Now reading file : {0}", f);
+                    var stock = new Stock(f);
+                    stock.LoadData();
+                    Console.WriteLine("File loaded, total {0} items", stock.Data.Count);
+
+                    LineProtocolPayload payload = new LineProtocolPayload();
+                    foreach (StockData d in stock.Data)
+                    {
+                        LineProtocolPoint point = new LineProtocolPoint(
+                            "tb_nasdaq",
+                            new Dictionary<string, object>
+                            {
+                                { "opening_price",  d.opening_price},
+                                { "highest_price", d.highest_price},
+                                { "lowest_price", d.lowest_price},
+                                { "closing_price", d.closing_price},
+                                { "adjusted_closing_price", d.adjusted_closing_price},
+                                { "trade_volume", d.trade_volume},
+                            },
+                            new Dictionary<string, string>
+                            {
+                                { "code", d.code }
+                            },
+                            DateTime.Parse(d.date).ToUniversalTime());
+                        payload.Add(point);
+
+                    }
+                    var result = client.WriteAsync(payload).GetAwaiter().GetResult();
+                    if (!result.Success)
+                    {
+                        Console.WriteLine(result.ErrorMessage);
+                    }
+                }
+                currentFolder++;
+            }
+
+            DateTime end = DateTime.Now;
+            Console.WriteLine("Total spent: {0} seconds", (end - start).Seconds);
+        }
+
+```
+In this way, time spent: 2068.86100 seconds(about 35 minutes).
+

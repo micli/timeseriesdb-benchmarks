@@ -2,13 +2,14 @@
 
 ## Executive Summary
 
-By viewing [db-engines.com](https://db-engines.com/en/ranking/time+series+dbms) website and communities and GitHub, we selected 4 time series databases for assesment in this time. They are:
+Now we are looking for a fast, lightly, easy to deployment time sierie database for future usage. By viewing [db-engines.com](https://db-engines.com/en/ranking/time+series+dbms) website and communities and GitHub, we selected 4 time series databases for assesment in this time. They are:
 
 | ![dolphindb](./images/logo-dolphindb.jpg)|![influxdb](./images/logo-influxdb.png)|![kdb+](./images/logo-kdb.jpg)|![TDengine](./images/logo-tdengine.png)|
 |:-:|:-:|:-:|:-:|
 |[DolphinDB](https://www.dolphindb.com/)|[InfluxDB](https://www.influxdata.com/)|[KDB+](https://www.kx.com/)|[TDEngine](http://www.taosdata.com/en/)|
 
-For testing these database, we downloaded Nasdaq daily stock trading summary (from 2011.01.01~2020.09, 3000+ company) as testing data. We evaluate database by data importing, operationing, query time and others. 
+
+We noticed that there are OpenTSDB, TimescaleDB etc,. Most of them base on relational database. It not lightly and easy to deployment.;For testing these database, we downloaded Nasdaq daily stock trading summary (time: 2011.01.01~2020.09, 3065+ company) as testing data. We evaluate database by data importing, operationing, query time and others. 
 
 Besides data, we also considering licensing type, architecture, ecosystem and support for future usage.
 
@@ -183,9 +184,27 @@ For importing details, please view below:
 
 ### Query Performance
 
+By tesing serval SQL statments, We got the rank for query performance:
 
+1. DolphinDB
+2. TDEngine
+3. InfluxDB
 
-## Support and Community Considerations
+DolphinDB always complete query in several milliseconds. TTDEngine usually takes 100 times longer to complete the query than dolphinDB. InfluxDB it the slowest.
 
+For details, please view: [Query Performance](./QueryPerformance.md).
 
+## Support and Community
 
++ [DolphinDB documentation](https://www.dolphindb.cn/cn/help/index.html)
++ [KDB+](https://code.kx.com/q/)
++ [InfluxDB](https://www.docs.influxdata.com/influxdb/v1.8)
++ [TDEngine](https://www.taosdata.com/cn/documentation/)
+
+Notes:
+
+***
+
++ InfluxDb has a poor interactive experience. for example: if you select wrong column name that not in the measurement, it won't tell you anything about it. Just return prompt without any meesage.
++ There are a lot of difference between english version and chinese version in DolphinDB documents.
+***
