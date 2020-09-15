@@ -9,7 +9,7 @@ Now we are looking for a fast, lightly, easy to deployment time sierie database 
 |[DolphinDB](https://www.dolphindb.com/)|[InfluxDB](https://www.influxdata.com/)|[KDB+](https://www.kx.com/)|[TDEngine](http://www.taosdata.com/en/)|
 
 
-We noticed that there are OpenTSDB, TimescaleDB etc,. Most of them base on relational database. It not lightly and easy to deployment.;For testing these database, we downloaded Nasdaq daily stock trading summary (time: 2011.01.01~2020.09, 3065+ company) as testing data. We evaluate database by data importing, operationing, query time and others. 
+We noticed that there are OpenTSDB, TimescaleDB etc,. Most of them base on relational database. It not lightly and easy to deployment.For testing these database, we downloaded Nasdaq daily stock trading summary (time: 2011.01.01~2020.09, 3065+ company) as testing data. We evaluate database by data importing, operationing, query time and others. 
 
 Besides data, we also considering licensing type, architecture, ecosystem and support for future usage.
 

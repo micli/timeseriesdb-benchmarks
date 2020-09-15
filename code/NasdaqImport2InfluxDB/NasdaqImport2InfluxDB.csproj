@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="InfluxData.Net" Version="8.0.1" />
+    <PackageReference Include="InfluxDB.Client" Version="1.11.0" />
+    <PackageReference Include="InfluxDB.LineProtocol" Version="1.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nasdaq.Data\Nasdaq.Data.csproj" />
+  </ItemGroup>
+</Project>
