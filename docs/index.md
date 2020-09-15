@@ -18,11 +18,10 @@ Besides data, we also considering licensing type, architecture, ecosystem and su
 By completed whole evaluation, we can get below facts:
 
 + All of databases support Docker and kubernetes deployment.
-+ KDB+ 
-+ InfluxDB
-+ TDEngine
-+ DolphinDB
-+ Best performance is
++ DolphinDB has an overwhelming advantage in all of these 4 databases.
++ InfluxDB is schema free.
++ TDEngine and DolphinDB are schema defined database.
++ Best performance is DolphinDB but it under commercial license.
 
 
 Summaraied above information, we recommended **** database as the best choice.
